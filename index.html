@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>매력 시뮬레이터 v2.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>매력 시뮬레이터 v3</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Pretendard', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; overflow-x: hidden; }
   .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
   .header { padding: 16px 20px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
@@ -13,7 +13,7 @@
   .back-btn { background: none; border: none; color: #888; font-size: 14px; cursor: pointer; padding: 4px 8px; width: 60px; text-align: left; }
   .content { flex: 1; padding: 24px 20px; }
   .step-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
-  .step-desc { font-size: 14px; color: #999; margin-bottom: 28px; line-height: 1.5; }
+  .step-desc { font-size: 14px; color: #999; margin-bottom: 24px; line-height: 1.5; }
   .btn { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 12px; font-family: inherit; transition: opacity 0.15s; }
   .btn:active { opacity: 0.8; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -26,7 +26,7 @@
   .progress-text { font-size: 13px; color: #999; margin-top: 10px; display: flex; justify-content: space-between; }
 
   .photo-options { display: grid; gap: 12px; }
-  .option-card { padding: 22px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: left; transition: border-color 0.2s; color: #fff; font-family: inherit; width: 100%; }
+  .option-card { padding: 22px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: left; color: #fff; font-family: inherit; width: 100%; }
   .option-card:active { border-color: #4a9eff; }
   .option-card .icon { font-size: 22px; margin-bottom: 8px; }
   .option-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -35,24 +35,37 @@
   .camera-container { position: relative; width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 16px; overflow: hidden; }
   .camera-container video, .camera-container canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
   .guide-overlay { position: absolute; inset: 0; pointer-events: none; }
+  .guide-text { position: absolute; top: 12px; left: 12px; right: 12px; background: rgba(0,0,0,0.55); padding: 10px 12px; border-radius: 10px; font-size: 12px; line-height: 1.5; color: #fff; pointer-events: none; backdrop-filter: blur(8px); }
   .camera-actions { display: flex; gap: 12px; margin-top: 16px; }
   .camera-actions .btn { margin-top: 0; flex: 1; }
 
-  .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .category-card { padding: 20px 16px; background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: center; transition: all 0.15s; color: #fff; font-family: inherit; }
-  .category-card.selected { border-color: #4a9eff; background: #0a1a2a; }
-  .category-card .icon { font-size: 28px; margin-bottom: 6px; }
-  .category-card .label { font-size: 14px; font-weight: 600; }
+  .l1-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .l1-card { padding: 24px 12px; background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: center; color: #fff; font-family: inherit; }
+  .l1-card.selected { border-color: #4a9eff; background: #0a1a2a; }
+  .l1-card .icon { font-size: 32px; margin-bottom: 8px; }
+  .l1-card .label { font-size: 14px; font-weight: 600; }
 
-  .preview-photo { width: 100%; border-radius: 12px; margin-bottom: 16px; max-height: 320px; object-fit: contain; background: #1a1a1a; }
+  .l2-list { display: grid; gap: 10px; }
+  .l2-card { padding: 16px 18px; background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 12px; cursor: pointer; text-align: left; color: #fff; font-family: inherit; display: flex; align-items: center; gap: 14px; }
+  .l2-card.selected { border-color: #4a9eff; background: #0a1a2a; }
+  .l2-card .ico { font-size: 22px; }
+  .l2-card .lbl { font-size: 15px; font-weight: 500; }
 
-  .live-view { position: relative; width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 16px; overflow: hidden; }
+  .preview-photo { width: 100%; border-radius: 12px; margin-bottom: 16px; max-height: 280px; object-fit: contain; background: #1a1a1a; }
+
+  .live-view { position: relative; width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 16px; overflow: hidden; touch-action: none; }
   .live-view canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .zoom-control { margin-top: 14px; padding: 14px; background: #1a1a1a; border-radius: 12px; }
+  .zoom-row { display: flex; align-items: center; gap: 12px; }
+  .zoom-label { font-size: 12px; color: #888; min-width: 70px; }
+  .zoom-slider { flex: 1; -webkit-appearance: none; height: 6px; background: #2a2a2a; border-radius: 3px; outline: none; }
+  .zoom-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #4a9eff; border-radius: 50%; cursor: pointer; }
+  .zoom-value { font-size: 13px; color: #fff; min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
 
   .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 20px; gap: 16px; }
   .spinner { width: 32px; height: 32px; border: 3px solid #2a2a2a; border-top-color: #4a9eff; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: #999; text-align: center; line-height: 1.5; }
+  .loading-text { font-size: 14px; color: #999; text-align: center; line-height: 1.5; white-space: pre-line; }
 
   .error-box { padding: 12px 16px; background: #2a0e0e; border: 1px solid #5a1e1e; border-radius: 12px; color: #ff8888; font-size: 13px; margin-top: 12px; line-height: 1.5; }
   .info-box { padding: 12px 16px; background: #0e1a2a; border: 1px solid #1e3a5a; border-radius: 12px; color: #88bbff; font-size: 13px; margin-top: 12px; line-height: 1.5; }
@@ -64,14 +77,14 @@
 <div class="app">
   <div class="header">
     <button class="back-btn hidden" id="backBtn">← 뒤로</button>
-    <h1>매력 시뮬레이터 v2.1</h1>
+    <h1>매력 시뮬레이터 v3</h1>
     <div style="width: 60px;"></div>
   </div>
 
   <div class="content" id="content">
     <div id="step-setup">
       <div class="step-title">AI 모델 준비</div>
-      <div class="step-desc" id="setupDesc">의상 인식 AI를 폰에 다운로드합니다. 한 번만 받아두면 다음부터는 즉시 사용 가능합니다.</div>
+      <div class="step-desc" id="setupDesc">의상 인식 + 자세 인식 AI를 폰에 다운로드합니다. 한 번만 받아두면 다음부터는 즉시 시작됩니다.</div>
       <div class="progress-wrap hidden" id="progressWrap">
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
         <div class="progress-text">
@@ -81,41 +94,49 @@
       </div>
       <button class="btn" id="loadModelBtn">모델 다운로드 시작</button>
       <div class="info-box" id="setupInfo">
-        💡 약 100MB 다운로드. WiFi 환경 권장.<br>
+        💡 약 110MB 다운로드. WiFi 권장.<br>
         한 번 받으면 폰에 캐시되어 다음부터 즉시 시작됩니다.
       </div>
       <div class="error-box hidden" id="setupError"></div>
     </div>
 
     <div id="step-photo" class="hidden">
-      <div class="step-title">사진 준비</div>
-      <div class="step-desc">의상을 입은 본인 사진을 업로드하거나 촬영하세요.</div>
+      <div class="step-title">전신 사진 준비</div>
+      <div class="step-desc">머리부터 발끝까지 들어간 전신 사진을 업로드하거나 촬영하세요.</div>
       <div class="photo-options">
         <button class="option-card" id="uploadOption">
           <div class="icon">📁</div>
           <h3>갤러리에서 선택</h3>
-          <p>이미 찍어둔 사진을 사용합니다</p>
+          <p>이미 찍어둔 전신 사진을 사용합니다</p>
         </button>
         <button class="option-card" id="captureOption">
           <div class="icon">📷</div>
           <h3>지금 촬영하기</h3>
-          <p>가이드라인을 보며 정자세로 촬영합니다</p>
+          <p>가이드라인을 보며 전신을 촬영합니다</p>
         </button>
       </div>
       <input type="file" id="fileInput" accept="image/*" class="hidden">
     </div>
 
     <div id="step-capture" class="hidden">
-      <div class="step-title">정자세 촬영</div>
-      <div class="step-desc">어깨선을 파란 수평 가이드에 맞추세요. 정면·정자세 필수.</div>
+      <div class="step-title">전신 촬영</div>
+      <div class="step-desc">가이드라인에 맞춰 전신이 프레임 안에 들어오게 하세요.</div>
       <div class="camera-container">
         <video id="captureVideo" autoplay playsinline muted></video>
+        <div class="guide-text">
+          • 머리부터 발끝까지 프레임 안에<br>
+          • 어깨·골반 수평, 정자세, 정면<br>
+          • 배경 단순할수록 인식 정확
+        </div>
         <svg class="guide-overlay" viewBox="0 0 100 133.33" preserveAspectRatio="none">
-          <rect x="15" y="10" width="70" height="115" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.3" stroke-dasharray="2,1"/>
-          <line x1="20" y1="40" x2="80" y2="40" stroke="rgba(74,158,255,0.75)" stroke-width="0.4" stroke-dasharray="1.5,1"/>
-          <line x1="50" y1="10" x2="50" y2="125" stroke="rgba(74,158,255,0.75)" stroke-width="0.4" stroke-dasharray="1.5,1"/>
-          <circle cx="25" cy="40" r="1.2" fill="#4a9eff"/>
-          <circle cx="75" cy="40" r="1.2" fill="#4a9eff"/>
+          <rect x="20" y="14" width="60" height="110" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.25" stroke-dasharray="2,1"/>
+          <line x1="50" y1="14" x2="50" y2="124" stroke="rgba(74,158,255,0.6)" stroke-width="0.35" stroke-dasharray="1.5,1"/>
+          <line x1="30" y1="32" x2="70" y2="32" stroke="rgba(74,158,255,0.7)" stroke-width="0.4" stroke-dasharray="1.5,1"/>
+          <line x1="34" y1="62" x2="66" y2="62" stroke="rgba(74,158,255,0.5)" stroke-width="0.35" stroke-dasharray="1.5,1"/>
+          <line x1="34" y1="118" x2="66" y2="118" stroke="rgba(74,158,255,0.5)" stroke-width="0.35" stroke-dasharray="1.5,1"/>
+          <text x="72" y="33" fill="rgba(74,158,255,0.9)" font-size="3" font-family="sans-serif">어깨</text>
+          <text x="68" y="63" fill="rgba(74,158,255,0.7)" font-size="3" font-family="sans-serif">골반</text>
+          <text x="68" y="119" fill="rgba(74,158,255,0.7)" font-size="3" font-family="sans-serif">발끝</text>
         </svg>
       </div>
       <div class="camera-actions">
@@ -124,66 +145,131 @@
       </div>
     </div>
 
-    <div id="step-category" class="hidden">
-      <div class="step-title">영역 선택</div>
-      <div class="step-desc">어느 의상 영역을 추출할까요?</div>
-      <img class="preview-photo" id="previewPhoto" alt="preview">
-      <div class="category-grid">
-        <button class="category-card" data-cat="upper"><div class="icon">👕</div><div class="label">상의</div></button>
-        <button class="category-card" data-cat="lower"><div class="icon">👖</div><div class="label">하의</div></button>
-        <button class="category-card" data-cat="dress"><div class="icon">👗</div><div class="label">원피스</div></button>
-        <button class="category-card" data-cat="all"><div class="icon">🧥</div><div class="label">전체 의상</div></button>
-      </div>
-      <button class="btn" id="extractBtn" disabled>추출하기</button>
-    </div>
-
-    <div id="step-processing" class="hidden">
+    <div id="step-analyzing" class="hidden">
       <div class="loading">
         <div class="spinner"></div>
-        <div class="loading-text" id="processingText">의상 영역 분석 중...</div>
+        <div class="loading-text" id="analyzingText">사진 분석 중...
+의상과 자세를 인식하고 있습니다 (5~20초)</div>
+      </div>
+    </div>
+
+    <div id="step-category-l1" class="hidden">
+      <div class="step-title">피팅 의상 선택</div>
+      <div class="step-desc">어떤 종류의 옷을 피팅해보시겠어요?</div>
+      <img class="preview-photo" id="previewPhoto" alt="preview">
+      <div class="l1-grid">
+        <button class="l1-card" data-l1="top"><div class="icon">👕</div><div class="label">상의</div></button>
+        <button class="l1-card" data-l1="bottom"><div class="icon">👖</div><div class="label">하의</div></button>
+        <button class="l1-card" data-l1="dress"><div class="icon">👗</div><div class="label">원피스</div></button>
+      </div>
+    </div>
+
+    <div id="step-category-l2" class="hidden">
+      <div class="step-title" id="l2Title">세부 선택</div>
+      <div class="step-desc" id="l2Desc">정확한 의상 종류를 선택하세요.</div>
+      <div class="l2-list" id="l2List"></div>
+      <button class="btn" id="l2NextBtn" disabled>마스크 생성</button>
+    </div>
+
+    <div id="step-mask-extract" class="hidden">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">마스크 생성 중...</div>
       </div>
     </div>
 
     <div id="step-live" class="hidden">
       <div class="step-title">라이브 모드</div>
-      <div class="step-desc">매장의 옷걸이를 후면 카메라로 비추세요. 추출된 영역에 실시간으로 비쳐집니다.</div>
-      <div class="live-view">
+      <div class="step-desc">매장의 옷걸이를 후면 카메라로 비추세요. 두 손가락으로 화면 확대·축소 가능합니다.</div>
+      <div class="live-view" id="liveView">
         <canvas id="liveCanvas"></canvas>
         <video id="liveVideo" autoplay playsinline muted class="hidden"></video>
+      </div>
+      <div class="zoom-control">
+        <div class="zoom-row">
+          <span class="zoom-label">카메라 줌</span>
+          <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="3" step="0.1" value="1">
+          <span class="zoom-value" id="zoomValue">1.0x</span>
+        </div>
       </div>
       <div class="camera-actions">
         <button class="btn secondary" id="liveFlipBtn">전/후 전환</button>
         <button class="btn" id="captureLiveBtn">캡처 저장</button>
       </div>
+      <button class="btn secondary" id="changeOutfitBtn" style="margin-top: 8px;">다른 의상 선택</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { pipeline, env, RawImage } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
+import { PoseLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17';
 
 env.allowLocalModels = false;
 env.useBrowserCache = true;
 
+// === 의상 카테고리 ===
+const GARMENTS = {
+  top: {
+    title: '상의',
+    desc: '소매 길이를 선택하세요.',
+    items: [
+      { id: 'tank',        ico: '🎽', lbl: '민소매',    cloth: ['Upper-clothes'], parts: [],      armTrim: null,         legTrim: null,         crop: 'upper' },
+      { id: 'short',       ico: '👕', lbl: '반팔',      cloth: ['Upper-clothes'], parts: ['arm'], armTrim: 'elbow',      legTrim: null,         crop: 'upper' },
+      { id: 'three_q',     ico: '🧥', lbl: '7부 소매',  cloth: ['Upper-clothes'], parts: ['arm'], armTrim: 'mid_forearm',legTrim: null,         crop: 'upper' },
+      { id: 'long',        ico: '👔', lbl: '긴팔',      cloth: ['Upper-clothes'], parts: ['arm'], armTrim: 'wrist',      legTrim: null,         crop: 'upper' }
+    ]
+  },
+  bottom: {
+    title: '하의',
+    desc: '하의 종류와 기장을 선택하세요.',
+    items: [
+      { id: 'shorts',      ico: '🩳', lbl: '반바지',      cloth: ['Pants','Skirt'],parts: ['leg'], armTrim: null,         legTrim: 'above_knee', crop: 'lower' },
+      { id: 'cropped_p',   ico: '👖', lbl: '7부 바지',    cloth: ['Pants'],        parts: ['leg'], armTrim: null,         legTrim: 'mid_calf',   crop: 'lower' },
+      { id: 'long_p',      ico: '👖', lbl: '긴바지',      cloth: ['Pants'],        parts: ['leg'], armTrim: null,         legTrim: 'ankle',      crop: 'lower' },
+      { id: 'mini_sk',     ico: '👗', lbl: '미니스커트',  cloth: ['Skirt'],        parts: ['leg'], armTrim: null,         legTrim: 'mid_thigh',  crop: 'lower' },
+      { id: 'knee_sk',     ico: '👗', lbl: '무릎 스커트', cloth: ['Skirt'],        parts: ['leg'], armTrim: null,         legTrim: 'knee',       crop: 'lower' },
+      { id: 'long_sk',     ico: '👗', lbl: '롱 스커트',   cloth: ['Skirt'],        parts: ['leg'], armTrim: null,         legTrim: 'ankle',      crop: 'lower' }
+    ]
+  },
+  dress: {
+    title: '원피스',
+    desc: '기장과 소매를 선택하세요.',
+    items: [
+      { id: 'mini_tank',   ico: '👗', lbl: '미니 (민소매)', cloth: ['Dress'], parts: ['leg'],         armTrim: null,    legTrim: 'mid_thigh', crop: 'full' },
+      { id: 'mini_short',  ico: '👗', lbl: '미니 (반팔)',   cloth: ['Dress'], parts: ['arm','leg'],   armTrim: 'elbow', legTrim: 'mid_thigh', crop: 'full' },
+      { id: 'mini_long',   ico: '👗', lbl: '미니 (긴팔)',   cloth: ['Dress'], parts: ['arm','leg'],   armTrim: 'wrist', legTrim: 'mid_thigh', crop: 'full' },
+      { id: 'long_tank',   ico: '👗', lbl: '롱 (민소매)',   cloth: ['Dress'], parts: ['leg'],         armTrim: null,    legTrim: 'ankle',     crop: 'full' },
+      { id: 'long_short',  ico: '👗', lbl: '롱 (반팔)',     cloth: ['Dress'], parts: ['arm','leg'],   armTrim: 'elbow', legTrim: 'ankle',     crop: 'full' },
+      { id: 'long_long',   ico: '👗', lbl: '롱 (긴팔)',     cloth: ['Dress'], parts: ['arm','leg'],   armTrim: 'wrist', legTrim: 'ankle',     crop: 'full' }
+    ]
+  }
+};
+
+// === 상태 ===
 const state = {
-  segmenter: null, photoBlob: null, photoImage: null, selectedCategory: null,
-  maskImage: null, currentStream: null, liveVideo: null, liveCanvas: null,
-  liveCtx: null, tempCanvas: null, tempCtx: null, rafId: null, facingMode: 'environment'
+  segmenter: null, poseLandmarker: null,
+  photoBlob: null, photoImage: null,
+  segments: null,       // SegFormer 결과
+  pose: null,           // Pose 랜드마크 (이미지 픽셀 좌표)
+  selectedL1: null, selectedL2: null, currentGarment: null,
+  maskImage: null,      // 최종 마스크
+  cropRect: null,       // 자동 줌용 자른 영역 {x, y, w, h}
+  currentStream: null, videoTrack: null, supportsNativeZoom: false,
+  liveVideo: null, liveCanvas: null, liveCtx: null,
+  tempCanvas: null, tempCtx: null,
+  rafId: null, facingMode: 'environment',
+  zoomLevel: 1.0, pinchScale: 1.0, pinchOffset: { x: 0, y: 0 }
 };
-const CATEGORY_MAP = {
-  upper: ['Upper-clothes'],
-  lower: ['Skirt', 'Pants'],
-  dress: ['Dress'],
-  all: ['Hat', 'Upper-clothes', 'Skirt', 'Pants', 'Dress', 'Belt', 'Left-shoe', 'Right-shoe', 'Scarf']
-};
-const STEPS = ['setup', 'photo', 'capture', 'category', 'processing', 'live'];
+
+const STEPS = ['setup','photo','capture','analyzing','category-l1','category-l2','mask-extract','live'];
 let stepHistory = ['setup'];
 const $ = (id) => document.getElementById(id);
 
 function showStep(name) {
   STEPS.forEach(s => $(`step-${s}`).classList.add('hidden'));
   $(`step-${name}`).classList.remove('hidden');
-  $('backBtn').classList.toggle('hidden', name === 'setup' || name === 'processing');
+  $('backBtn').classList.toggle('hidden', name === 'setup' || name === 'analyzing' || name === 'mask-extract');
   if (stepHistory[stepHistory.length - 1] !== name) stepHistory.push(name);
 }
 function goBack() {
@@ -196,7 +282,7 @@ function goBack() {
   $('backBtn').classList.toggle('hidden', prev === 'setup');
 }
 function stopAllStreams() {
-  if (state.currentStream) { state.currentStream.getTracks().forEach(t => t.stop()); state.currentStream = null; }
+  if (state.currentStream) { state.currentStream.getTracks().forEach(t => t.stop()); state.currentStream = null; state.videoTrack = null; }
 }
 function showError(elId, msg) { const el = $(elId); el.innerHTML = msg; el.classList.remove('hidden'); }
 
@@ -206,44 +292,61 @@ $('loadModelBtn').onclick = async () => {
   $('setupInfo').classList.add('hidden');
   $('setupError').classList.add('hidden');
   $('progressWrap').classList.remove('hidden');
-  $('setupDesc').textContent = 'AI 모델을 다운로드하고 있습니다. 첫 실행만 시간이 걸립니다.';
+  $('setupDesc').textContent = 'AI 모델 다운로드 중...';
 
   const progressMap = {};
   try {
+    // SegFormer
     state.segmenter = await pipeline(
-      'image-segmentation',
-      'Xenova/segformer_b2_clothes',
+      'image-segmentation', 'Xenova/segformer_b2_clothes',
       {
         progress_callback: (data) => {
           if (data.status === 'progress' && data.file) {
             progressMap[data.file] = data.progress || 0;
-            const files = Object.values(progressMap);
-            const avg = files.reduce((a, b) => a + b, 0) / files.length;
-            $('progressFill').style.width = avg + '%';
-            $('progressPercent').textContent = Math.round(avg) + '%';
-            $('progressFile').textContent = data.file.split('/').pop();
-          } else if (data.status === 'ready') {
-            $('progressFill').style.width = '100%';
-            $('progressPercent').textContent = '100%';
-            $('progressFile').textContent = '완료';
+            updateProgress(progressMap, data.file, 0.7);
           }
         }
       }
     );
+
+    // MediaPipe Pose
+    $('progressFile').textContent = 'pose_landmarker_lite.task';
+    const vision = await FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm'
+    );
+    state.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task',
+        delegate: 'GPU'
+      },
+      runningMode: 'IMAGE',
+      numPoses: 1
+    });
+
     $('progressFill').style.width = '100%';
     $('progressPercent').textContent = '100%';
+    $('progressFile').textContent = '완료';
     setTimeout(() => showStep('photo'), 400);
   } catch (e) {
-    showError('setupError', '모델 로딩 실패: ' + (e.message || e) + '<br><br>새로고침 후 다시 시도하거나 WiFi 연결을 확인해주세요.');
+    showError('setupError', '모델 로딩 실패: ' + (e.message || e) + '<br><br>새로고침 후 다시 시도해 주세요.');
     $('loadModelBtn').textContent = '다시 시도';
     $('loadModelBtn').classList.remove('hidden');
     $('progressWrap').classList.add('hidden');
   }
 };
 
+function updateProgress(map, currentFile, segWeight) {
+  const files = Object.values(map);
+  const avg = files.reduce((a, b) => a + b, 0) / files.length;
+  const total = avg * segWeight;
+  $('progressFill').style.width = total + '%';
+  $('progressPercent').textContent = Math.round(total) + '%';
+  $('progressFile').textContent = currentFile.split('/').pop();
+}
+
 // === 사진 단계 ===
 $('uploadOption').onclick = () => $('fileInput').click();
-$('fileInput').onchange = (e) => { const file = e.target.files[0]; if (!file) return; state.photoBlob = file; loadPhotoForCategory(file); };
+$('fileInput').onchange = (e) => { const f = e.target.files[0]; if (!f) return; state.photoBlob = f; loadPhotoAndAnalyze(f); };
 $('captureOption').onclick = async () => { showStep('capture'); await startCaptureCamera(); };
 
 async function startCaptureCamera() {
@@ -252,7 +355,7 @@ async function startCaptureCamera() {
     state.currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facingMode } });
     $('captureVideo').srcObject = state.currentStream;
   } catch (e) {
-    alert('카메라 접근 실패: ' + e.message + '\n\nHTTPS 환경에서만 카메라가 동작합니다.');
+    alert('카메라 접근 실패: ' + e.message);
     goBack();
   }
 }
@@ -266,74 +369,215 @@ $('shutterBtn').onclick = () => {
   canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
   canvas.toBlob((blob) => {
-    state.photoBlob = blob; stopAllStreams(); loadPhotoForCategory(blob);
+    state.photoBlob = blob; stopAllStreams(); loadPhotoAndAnalyze(blob);
   }, 'image/jpeg', 0.92);
 };
 
-function loadPhotoForCategory(blob) {
+// === 사진 로드 후 자동 분석 (SegFormer + Pose) ===
+async function loadPhotoAndAnalyze(blob) {
   const url = URL.createObjectURL(blob);
   const img = new Image();
-  img.onload = () => {
+  img.onload = async () => {
     state.photoImage = img;
     $('previewPhoto').src = url;
-    state.selectedCategory = null;
-    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
-    $('extractBtn').disabled = true;
-    showStep('category');
+    showStep('analyzing');
+    try {
+      // 1) SegFormer
+      $('analyzingText').textContent = '의상·신체 부위 인식 중...\n(첫 추론은 5~15초 소요)';
+      const rawImg = await RawImage.fromURL(img.src);
+      state.segments = await state.segmenter(rawImg);
+
+      // 2) Pose
+      $('analyzingText').textContent = '자세 분석 중...';
+      const poseResult = state.poseLandmarker.detect(img);
+      if (!poseResult.landmarks || poseResult.landmarks.length === 0) {
+        throw new Error('POSE_FAIL');
+      }
+      // 정규화 좌표 -> 픽셀 좌표 변환
+      state.pose = poseResult.landmarks[0].map(lm => ({
+        x: lm.x * img.naturalWidth,
+        y: lm.y * img.naturalHeight,
+        visibility: lm.visibility
+      }));
+
+      // 다음 단계
+      state.selectedL1 = null;
+      document.querySelectorAll('.l1-card').forEach(c => c.classList.remove('selected'));
+      showStep('category-l1');
+    } catch (e) {
+      if (e.message === 'POSE_FAIL') {
+        alert('자세 인식 실패\n\n전신이 프레임에 들어가도록 다시 촬영해 주세요.\n• 머리부터 발끝까지\n• 정자세, 정면\n• 팔이 몸에 가려지지 않게');
+      } else {
+        alert('분석 실패: ' + (e.message || e));
+      }
+      goBack();
+    }
   };
   img.src = url;
 }
-document.querySelectorAll('.category-card').forEach(card => {
+
+// === 카테고리 L1 ===
+document.querySelectorAll('.l1-card').forEach(card => {
   card.onclick = () => {
-    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.l1-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
-    state.selectedCategory = card.dataset.cat;
-    $('extractBtn').disabled = false;
+    state.selectedL1 = card.dataset.l1;
+    renderL2();
+    showStep('category-l2');
   };
 });
 
-$('extractBtn').onclick = async () => {
-  showStep('processing');
-  $('processingText').textContent = '의상 영역 분석 중...\n(첫 추론은 5~15초 소요)';
+function renderL2() {
+  const group = GARMENTS[state.selectedL1];
+  $('l2Title').textContent = group.title + ' 세부 선택';
+  $('l2Desc').textContent = group.desc;
+  const list = $('l2List');
+  list.innerHTML = '';
+  state.selectedL2 = null;
+  $('l2NextBtn').disabled = true;
+  group.items.forEach(item => {
+    const card = document.createElement('button');
+    card.className = 'l2-card';
+    card.innerHTML = `<span class="ico">${item.ico}</span><span class="lbl">${item.lbl}</span>`;
+    card.onclick = () => {
+      list.querySelectorAll('.l2-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.selectedL2 = item;
+      $('l2NextBtn').disabled = false;
+    };
+    list.appendChild(card);
+  });
+}
+
+$('l2NextBtn').onclick = async () => {
+  state.currentGarment = state.selectedL2;
+  showStep('mask-extract');
   try {
-    const mask = await extractMask(state.photoImage, state.selectedCategory);
-    state.maskImage = mask;
+    state.maskImage = await buildMask(state.currentGarment);
+    state.cropRect = computeCropRect(state.currentGarment.crop);
     await startLiveMode();
   } catch (e) {
-    alert('추출 실패: ' + (e.message || e));
+    alert('마스크 생성 실패: ' + (e.message || e));
     goBack();
   }
 };
 
-// === 핵심: 브라우저 내장 AI로 마스크 추출 ===
-async function extractMask(imageElement, category) {
-  const targetLabels = CATEGORY_MAP[category];
-
-  // 이미지를 RawImage로 변환
-  const rawImg = await RawImage.fromURL(imageElement.src);
-
-  // 세그멘테이션 실행
-  const segments = await state.segmenter(rawImg);
-
-  const relevant = segments.filter(s => targetLabels.includes(s.label));
-  if (relevant.length === 0) {
-    const detected = segments.map(s => s.label).join(', ');
-    throw new Error(`선택한 영역의 의상이 감지되지 않았습니다.\n\n감지된 항목: ${detected}`);
-  }
-
-  // 마스크 합성용 캔버스 (투명 배경, 알파 채널 기반)
-  const w = imageElement.naturalWidth;
-  const h = imageElement.naturalHeight;
+// === 마스크 빌드 (의상 영역 + 신체 부위 + Pose 트리밍) ===
+async function buildMask(garment) {
+  const w = state.photoImage.naturalWidth;
+  const h = state.photoImage.naturalHeight;
   const merged = document.createElement('canvas');
   merged.width = w; merged.height = h;
   const ctx = merged.getContext('2d');
   ctx.clearRect(0, 0, w, h);
 
-  for (const seg of relevant) {
-    const maskCanvas = rawImageMaskToCanvas(seg.mask);
-    ctx.drawImage(maskCanvas, 0, 0, w, h);
+  // 1) 의상 영역 추가
+  for (const lbl of garment.cloth) {
+    const seg = state.segments.find(s => s.label === lbl);
+    if (seg) {
+      const c = rawImageMaskToCanvas(seg.mask);
+      ctx.drawImage(c, 0, 0, w, h);
+    }
   }
+
+  // 2) 신체 부위 추가 (팔/다리)
+  if (garment.parts.includes('arm')) {
+    addArmMask(ctx, w, h, 'Left-arm', garment.armTrim);
+    addArmMask(ctx, w, h, 'Right-arm', garment.armTrim);
+  }
+  if (garment.parts.includes('leg')) {
+    addLegMask(ctx, w, h, 'Left-leg', garment.legTrim);
+    addLegMask(ctx, w, h, 'Right-leg', garment.legTrim);
+  }
+
   return await canvasToImage(merged);
+}
+
+function addArmMask(ctx, w, h, label, trim) {
+  const seg = state.segments.find(s => s.label === label);
+  if (!seg) return;
+  const armCanvas = rawImageMaskToCanvas(seg.mask);
+  if (!trim || trim === 'wrist') {
+    ctx.drawImage(armCanvas, 0, 0, w, h);
+    return;
+  }
+  // Pose 좌표 기준 자르기
+  const isLeft = label === 'Left-arm';
+  // MediaPipe: 11=L shoulder, 12=R shoulder, 13=L elbow, 14=R elbow, 15=L wrist, 16=R wrist
+  // 단, MediaPipe의 left/right는 사람 기준 (이미지에서는 좌우 반전됨)
+  const shoulder = state.pose[isLeft ? 11 : 12];
+  const elbow    = state.pose[isLeft ? 13 : 14];
+  const wrist    = state.pose[isLeft ? 15 : 16];
+  let cutPoint;
+  if (trim === 'elbow') cutPoint = elbow;
+  else if (trim === 'mid_forearm') cutPoint = { x: (elbow.x + wrist.x) / 2, y: (elbow.y + wrist.y) / 2 };
+  else return;
+
+  // 어깨-손목 벡터에 수직인 선으로 자르기
+  const trimmed = trimMaskByLine(armCanvas, shoulder, wrist, cutPoint);
+  ctx.drawImage(trimmed, 0, 0, w, h);
+}
+
+function addLegMask(ctx, w, h, label, trim) {
+  const seg = state.segments.find(s => s.label === label);
+  if (!seg) return;
+  const legCanvas = rawImageMaskToCanvas(seg.mask);
+  if (!trim || trim === 'ankle') {
+    ctx.drawImage(legCanvas, 0, 0, w, h);
+    return;
+  }
+  const isLeft = label === 'Left-leg';
+  // 23=L hip, 24=R hip, 25=L knee, 26=R knee, 27=L ankle, 28=R ankle
+  const hip   = state.pose[isLeft ? 23 : 24];
+  const knee  = state.pose[isLeft ? 25 : 26];
+  const ankle = state.pose[isLeft ? 27 : 28];
+  let cutPoint;
+  if (trim === 'mid_thigh') cutPoint = { x: (hip.x + knee.x) / 2, y: (hip.y + knee.y) / 2 };
+  else if (trim === 'above_knee') cutPoint = { x: (hip.x * 0.35 + knee.x * 0.65), y: (hip.y * 0.35 + knee.y * 0.65) };
+  else if (trim === 'knee') cutPoint = knee;
+  else if (trim === 'mid_calf') cutPoint = { x: (knee.x + ankle.x) / 2, y: (knee.y + ankle.y) / 2 };
+  else return;
+
+  const trimmed = trimMaskByLine(legCanvas, hip, ankle, cutPoint);
+  ctx.drawImage(trimmed, 0, 0, w, h);
+}
+
+// 사지(肢) 마스크를 cutPoint에서 수직선으로 자름. 어깨/골반 쪽만 유지.
+function trimMaskByLine(srcCanvas, fromPt, toPt, cutPt) {
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const out = document.createElement('canvas');
+  out.width = w; out.height = h;
+  const octx = out.getContext('2d');
+  octx.drawImage(srcCanvas, 0, 0);
+
+  // 벡터 from->to. 수직 벡터로 cutPt를 지나는 선의 외측(toPt 쪽)을 검정으로 칠함
+  const dx = toPt.x - fromPt.x;
+  const dy = toPt.y - fromPt.y;
+  const len = Math.sqrt(dx * dx + dy * dy) || 1;
+  const ux = dx / len, uy = dy / len; // from->to 방향 단위벡터
+  // 수직벡터 (직각): (-uy, ux)
+
+  // cutPt를 지나고 ux, uy 방향에 수직인 선의 평면방정식: ux*(x-cutPt.x) + uy*(y-cutPt.y) >= 0  -> toPt 쪽
+  // 이 부분을 destination-out으로 지움
+  octx.globalCompositeOperation = 'destination-out';
+  octx.fillStyle = 'rgba(0,0,0,1)';
+
+  // 자를 영역을 큰 사각형 두 점(cutPt 기준 toPt 쪽 무한 반평면)으로 폴리곤 그리기
+  const perpX = -uy, perpY = ux;
+  const big = Math.max(w, h) * 3;
+  const p1 = { x: cutPt.x + perpX * big, y: cutPt.y + perpY * big };
+  const p2 = { x: cutPt.x - perpX * big, y: cutPt.y - perpY * big };
+  const p3 = { x: p2.x + ux * big, y: p2.y + uy * big };
+  const p4 = { x: p1.x + ux * big, y: p1.y + uy * big };
+
+  octx.beginPath();
+  octx.moveTo(p1.x, p1.y);
+  octx.lineTo(p2.x, p2.y);
+  octx.lineTo(p3.x, p3.y);
+  octx.lineTo(p4.x, p4.y);
+  octx.closePath();
+  octx.fill();
+  return out;
 }
 
 function rawImageMaskToCanvas(rawImage) {
@@ -343,13 +587,12 @@ function rawImageMaskToCanvas(rawImage) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.createImageData(rawImage.width, rawImage.height);
   const data = rawImage.data;
-  // 마스크 값을 알파 채널에 넣기 (destination-in이 알파 기준으로 작동하므로)
   for (let i = 0; i < data.length; i++) {
     const v = data[i];
-    imageData.data[i * 4] = 255;
-    imageData.data[i * 4 + 1] = 255;
-    imageData.data[i * 4 + 2] = 255;
-    imageData.data[i * 4 + 3] = v > 0 ? 255 : 0;
+    imageData.data[i*4] = 255;
+    imageData.data[i*4+1] = 255;
+    imageData.data[i*4+2] = 255;
+    imageData.data[i*4+3] = v > 0 ? 255 : 0;
   }
   ctx.putImageData(imageData, 0, 0);
   return canvas;
@@ -365,49 +608,185 @@ function canvasToImage(canvas) {
   });
 }
 
+// === 자동 줌 영역 계산 ===
+function computeCropRect(cropType) {
+  const w = state.photoImage.naturalWidth;
+  const h = state.photoImage.naturalHeight;
+  const pose = state.pose;
+
+  // 주요 좌표
+  const nose = pose[0];
+  const shoulders = { x: (pose[11].x + pose[12].x) / 2, y: (pose[11].y + pose[12].y) / 2 };
+  const hips = { x: (pose[23].x + pose[24].x) / 2, y: (pose[23].y + pose[24].y) / 2 };
+  const ankles = { y: Math.max(pose[27].y, pose[28].y) };
+
+  let top, bottom;
+  if (cropType === 'upper') {
+    top = Math.max(0, nose.y - (shoulders.y - nose.y) * 0.8); // 머리 위
+    bottom = hips.y + (hips.y - shoulders.y) * 0.3;
+  } else if (cropType === 'lower') {
+    top = shoulders.y + (hips.y - shoulders.y) * 0.5; // 명치
+    bottom = Math.min(h, ankles.y + (ankles.y - hips.y) * 0.08);
+  } else { // full
+    top = Math.max(0, nose.y - (shoulders.y - nose.y) * 1.0);
+    bottom = Math.min(h, ankles.y + (ankles.y - hips.y) * 0.08);
+  }
+  top = Math.max(0, top);
+  bottom = Math.min(h, bottom);
+  const cropH = bottom - top;
+  const aspect = 3 / 4; // 캔버스 비율
+  const cropW = cropH * aspect;
+  let left = (w - cropW) / 2;
+  left = Math.max(0, Math.min(left, w - cropW));
+  const right = left + cropW;
+
+  return { x: left, y: top, w: cropW, h: cropH };
+}
+
 // === 라이브 모드 ===
 async function startLiveMode() {
   showStep('live');
-  state.liveVideo = $('liveVideo'); state.liveCanvas = $('liveCanvas');
+  state.liveVideo = $('liveVideo');
+  state.liveCanvas = $('liveCanvas');
   state.liveCtx = state.liveCanvas.getContext('2d');
-  state.liveCanvas.width = state.photoImage.naturalWidth;
-  state.liveCanvas.height = state.photoImage.naturalHeight;
+  // 캔버스 크기는 자른 영역 비율로
+  state.liveCanvas.width = Math.round(state.cropRect.w);
+  state.liveCanvas.height = Math.round(state.cropRect.h);
   state.tempCanvas = document.createElement('canvas');
   state.tempCanvas.width = state.liveCanvas.width;
   state.tempCanvas.height = state.liveCanvas.height;
   state.tempCtx = state.tempCanvas.getContext('2d');
   state.facingMode = 'environment';
+  state.zoomLevel = 1.0;
+  state.pinchScale = 1.0;
+  state.pinchOffset = { x: 0, y: 0 };
+  $('zoomSlider').value = 1;
+  $('zoomValue').textContent = '1.0x';
   await startLiveCamera();
+  setupPinchZoom();
   renderLive();
 }
+
 async function startLiveCamera() {
   stopAllStreams();
   try {
     state.currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facingMode } });
     state.liveVideo.srcObject = state.currentStream;
     await new Promise(r => state.liveVideo.onloadedmetadata = r);
+    // native zoom 지원 확인
+    state.videoTrack = state.currentStream.getVideoTracks()[0];
+    const caps = state.videoTrack.getCapabilities ? state.videoTrack.getCapabilities() : {};
+    state.supportsNativeZoom = !!caps.zoom;
+    if (state.supportsNativeZoom) {
+      $('zoomSlider').min = caps.zoom.min || 1;
+      $('zoomSlider').max = Math.min(caps.zoom.max || 3, 3);
+      $('zoomSlider').step = caps.zoom.step || 0.1;
+      $('zoomSlider').value = caps.zoom.min || 1;
+    }
   } catch (e) { alert('카메라 접근 실패: ' + e.message); }
 }
-$('liveFlipBtn').onclick = async () => { state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment'; await startLiveCamera(); };
 
+$('liveFlipBtn').onclick = async () => {
+  state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+  await startLiveCamera();
+};
+
+$('zoomSlider').oninput = async (e) => {
+  state.zoomLevel = parseFloat(e.target.value);
+  $('zoomValue').textContent = state.zoomLevel.toFixed(1) + 'x';
+  if (state.supportsNativeZoom && state.videoTrack) {
+    try { await state.videoTrack.applyConstraints({ advanced: [{ zoom: state.zoomLevel }] }); } catch (_) {}
+  }
+};
+
+// === 핀치 줌 (사진 영역 확대) ===
+function setupPinchZoom() {
+  const view = $('liveView');
+  let initialDist = null, initialScale = 1, initialOffset = { x: 0, y: 0 };
+  let lastTouches = null;
+
+  view.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      initialDist = touchDist(e.touches);
+      initialScale = state.pinchScale;
+      initialOffset = { ...state.pinchOffset };
+      lastTouches = [...e.touches];
+    }
+  }, { passive: false });
+
+  view.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialDist) {
+      e.preventDefault();
+      const d = touchDist(e.touches);
+      const newScale = Math.max(1, Math.min(4, initialScale * (d / initialDist)));
+      state.pinchScale = newScale;
+    }
+  }, { passive: false });
+
+  view.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) { initialDist = null; lastTouches = null; }
+  });
+
+  // 더블탭으로 핀치 리셋
+  let lastTap = 0;
+  view.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 300 && e.touches.length === 0) {
+      state.pinchScale = 1;
+      state.pinchOffset = { x: 0, y: 0 };
+    }
+    lastTap = now;
+  });
+}
+function touchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+// === 렌더 루프 ===
 function renderLive() {
-  const ctx = state.liveCtx; const canvas = state.liveCanvas; const video = state.liveVideo;
-  const tctx = state.tempCtx; const temp = state.tempCanvas;
+  const ctx = state.liveCtx;
+  const canvas = state.liveCanvas;
+  const video = state.liveVideo;
+  const tctx = state.tempCtx;
+  const temp = state.tempCanvas;
+  const cr = state.cropRect;
+  const ps = state.pinchScale;
+
   if (video.readyState >= 2) {
+    // 사진 그리기 (자른 영역 + 핀치 스케일)
     ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(state.photoImage, 0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const scaledW = cr.w / ps;
+    const scaledH = cr.h / ps;
+    const sx = cr.x + (cr.w - scaledW) / 2;
+    const sy = cr.y + (cr.h - scaledH) / 2;
+    ctx.drawImage(state.photoImage, sx, sy, scaledW, scaledH, 0, 0, canvas.width, canvas.height);
+
+    // 카메라를 temp에 그리기 (digital zoom + crop area)
     tctx.globalCompositeOperation = 'source-over';
     tctx.clearRect(0, 0, temp.width, temp.height);
-    const vw = video.videoWidth, vh = video.videoHeight, cw = canvas.width, ch = canvas.height;
-    const scale = Math.max(cw / vw, ch / vh);
-    const sw = vw * scale, sh = vh * scale, sx = (cw - sw) / 2, sy = (ch - sh) / 2;
-    tctx.drawImage(video, sx, sy, sw, sh);
+    const vw = video.videoWidth, vh = video.videoHeight;
+    let digiZoom = 1;
+    if (!state.supportsNativeZoom) digiZoom = state.zoomLevel;
+    const vScale = Math.max(canvas.width / vw, canvas.height / vh) * digiZoom;
+    const vsw = vw * vScale, vsh = vh * vScale;
+    const vsx = (canvas.width - vsw) / 2;
+    const vsy = (canvas.height - vsh) / 2;
+    tctx.drawImage(video, vsx, vsy, vsw, vsh);
+
+    // 마스크 적용: 마스크도 같은 자른 영역+핀치 스케일로
     tctx.globalCompositeOperation = 'destination-in';
-    tctx.drawImage(state.maskImage, 0, 0, canvas.width, canvas.height);
+    tctx.drawImage(state.maskImage, sx, sy, scaledW, scaledH, 0, 0, canvas.width, canvas.height);
+
+    // 최종 합성
     ctx.drawImage(temp, 0, 0);
   }
   state.rafId = requestAnimationFrame(renderLive);
 }
+
 $('captureLiveBtn').onclick = () => {
   state.liveCanvas.toBlob((blob) => {
     const url = URL.createObjectURL(blob);
@@ -417,6 +796,15 @@ $('captureLiveBtn').onclick = () => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, 'image/png');
 };
+
+$('changeOutfitBtn').onclick = () => {
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+  stopAllStreams();
+  // L1로 돌아가기
+  while (stepHistory[stepHistory.length - 1] !== 'category-l1' && stepHistory.length > 1) stepHistory.pop();
+  showStep('category-l1');
+};
+
 $('backBtn').onclick = goBack;
 showStep('setup');
 </script>
