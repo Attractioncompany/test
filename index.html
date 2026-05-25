@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>매력 시뮬레이터 v1.1</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Pretendard', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; overflow-x: hidden; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
+  .header { padding: 16px 20px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .back-btn { background: none; border: none; color: #888; font-size: 14px; cursor: pointer; padding: 4px 8px; width: 60px; text-align: left; }
+  .content { flex: 1; padding: 24px 20px; }
+  .step-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .step-desc { font-size: 14px; color: #999; margin-bottom: 28px; line-height: 1.5; }
+  .input-wrap { position: relative; }
+  .input { width: 100%; padding: 14px 16px; padding-right: 60px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; color: #fff; font-size: 15px; font-family: inherit; }
+  .input:focus { outline: none; border-color: #4a9eff; }
+  .show-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #2a2a2a; border: none; color: #999; font-size: 12px; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  .btn { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 12px; font-family: inherit; transition: opacity 0.15s; }
+  .btn:active { opacity: 0.8; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.secondary { background: #1a1a1a; color: #fff; border: 1px solid #2a2a2a; }
+  .hint { font-size: 12px; color: #666; margin-top: 12px; line-height: 1.6; }
+  .hint a { color: #4a9eff; text-decoration: none; }
+
+  .photo-options { display: grid; gap: 12px; }
+  .option-card { padding: 22px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: left; transition: border-color 0.2s; color: #fff; font-family: inherit; width: 100%; }
+  .option-card:active { border-color: #4a9eff; }
+  .option-card .icon { font-size: 22px; margin-bottom: 8px; }
+  .option-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .option-card p { font-size: 12px; color: #888; line-height: 1.4; }
+
+  .camera-container { position: relative; width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 16px; overflow: hidden; }
+  .camera-container video, .camera-container canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .guide-overlay { position: absolute; inset: 0; pointer-events: none; }
+  .camera-actions { display: flex; gap: 12px; margin-top: 16px; }
+  .camera-actions .btn { margin-top: 0; flex: 1; }
+
+  .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .category-card { padding: 20px 16px; background: #1a1a1a; border: 2px solid #2a2a2a; border-radius: 16px; cursor: pointer; text-align: center; transition: all 0.15s; color: #fff; font-family: inherit; }
+  .category-card.selected { border-color: #4a9eff; background: #0a1a2a; }
+  .category-card .icon { font-size: 28px; margin-bottom: 6px; }
+  .category-card .label { font-size: 14px; font-weight: 600; }
+
+  .preview-photo { width: 100%; border-radius: 12px; margin-bottom: 16px; max-height: 320px; object-fit: contain; background: #1a1a1a; }
+
+  .live-view { position: relative; width: 100%; aspect-ratio: 3/4; background: #000; border-radius: 16px; overflow: hidden; }
+  .live-view canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 20px; gap: 16px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #2a2a2a; border-top-color: #4a9eff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: #999; text-align: center; }
+
+  .error-box { padding: 12px 16px; background: #2a0e0e; border: 1px solid #5a1e1e; border-radius: 12px; color: #ff8888; font-size: 13px; margin-top: 12px; line-height: 1.5; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <button class="back-btn hidden" id="backBtn">← 뒤로</button>
+    <h1>매력 시뮬레이터 v1.1</h1>
+    <div style="width: 60px;"></div>
+  </div>
+
+  <div class="content" id="content">
+    <div id="step-setup">
+      <div class="step-title">시작하기</div>
+      <div class="step-desc">의상 자동 추출을 위해 HuggingFace API 토큰이 필요합니다.</div>
+      <div class="input-wrap">
+        <input type="password" class="input" id="tokenInput" placeholder="hf_xxxxxxxxxxxxxxxxxxxxx" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="show-btn" id="toggleShowBtn">보기</button>
+      </div>
+      <button class="btn" id="saveTokenBtn">시작하기</button>
+      <div class="hint">
+        토큰이 없으시면 <a href="https://huggingface.co/settings/tokens" target="_blank">여기서 무료 발급</a> (Read 권한이면 충분)<br>
+        토큰은 페이지가 열려있는 동안만 메모리에 저장됩니다.
+      </div>
+      <div class="error-box hidden" id="setupError"></div>
+    </div>
+
+    <div id="step-photo" class="hidden">
+      <div class="step-title">사진 준비</div>
+      <div class="step-desc">의상을 입은 본인 사진을 업로드하거나 촬영하세요.</div>
+      <div class="photo-options">
+        <button class="option-card" id="uploadOption">
+          <div class="icon">📁</div>
+          <h3>갤러리에서 선택</h3>
+          <p>이미 찍어둔 사진을 사용합니다</p>
+        </button>
+        <button class="option-card" id="captureOption">
+          <div class="icon">📷</div>
+          <h3>지금 촬영하기</h3>
+          <p>가이드라인을 보며 정자세로 촬영합니다</p>
+        </button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" class="hidden">
+    </div>
+
+    <div id="step-capture" class="hidden">
+      <div class="step-title">정자세 촬영</div>
+      <div class="step-desc">어깨선을 파란 수평 가이드에 맞추세요. 정면·정자세 필수.</div>
+      <div class="camera-container">
+        <video id="captureVideo" autoplay playsinline muted></video>
+        <svg class="guide-overlay" viewBox="0 0 100 133.33" preserveAspectRatio="none">
+          <rect x="15" y="10" width="70" height="115" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.3" stroke-dasharray="2,1"/>
+          <line x1="20" y1="40" x2="80" y2="40" stroke="rgba(74,158,255,0.75)" stroke-width="0.4" stroke-dasharray="1.5,1"/>
+          <line x1="50" y1="10" x2="50" y2="125" stroke="rgba(74,158,255,0.75)" stroke-width="0.4" stroke-dasharray="1.5,1"/>
+          <circle cx="25" cy="40" r="1.2" fill="#4a9eff"/>
+          <circle cx="75" cy="40" r="1.2" fill="#4a9eff"/>
+        </svg>
+      </div>
+      <div class="camera-actions">
+        <button class="btn secondary" id="flipCameraBtn">전/후 전환</button>
+        <button class="btn" id="shutterBtn">촬영</button>
+      </div>
+    </div>
+
+    <div id="step-category" class="hidden">
+      <div class="step-title">영역 선택</div>
+      <div class="step-desc">어느 의상 영역을 추출할까요?</div>
+      <img class="preview-photo" id="previewPhoto" alt="preview">
+      <div class="category-grid">
+        <button class="category-card" data-cat="upper"><div class="icon">👕</div><div class="label">상의</div></button>
+        <button class="category-card" data-cat="lower"><div class="icon">👖</div><div class="label">하의</div></button>
+        <button class="category-card" data-cat="dress"><div class="icon">👗</div><div class="label">원피스</div></button>
+        <button class="category-card" data-cat="all"><div class="icon">🧥</div><div class="label">전체 의상</div></button>
+      </div>
+      <button class="btn" id="extractBtn" disabled>추출하기</button>
+      <div class="error-box hidden" id="categoryError"></div>
+    </div>
+
+    <div id="step-processing" class="hidden">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="processingText">의상 영역 분석 중...</div>
+      </div>
+    </div>
+
+    <div id="step-live" class="hidden">
+      <div class="step-title">라이브 모드</div>
+      <div class="step-desc">매장의 옷걸이를 후면 카메라로 비추세요. 추출된 영역에 실시간으로 비쳐집니다.</div>
+      <div class="live-view">
+        <canvas id="liveCanvas"></canvas>
+        <video id="liveVideo" autoplay playsinline muted class="hidden"></video>
+      </div>
+      <div class="camera-actions">
+        <button class="btn secondary" id="liveFlipBtn">전/후 전환</button>
+        <button class="btn" id="captureLiveBtn">캡처 저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = {
+  token: '', photoBlob: null, photoImage: null, selectedCategory: null,
+  maskImage: null, currentStream: null, liveVideo: null, liveCanvas: null,
+  liveCtx: null, tempCanvas: null, tempCtx: null, rafId: null, facingMode: 'environment'
+};
+const CATEGORY_MAP = {
+  upper: ['Upper-clothes'],
+  lower: ['Skirt', 'Pants'],
+  dress: ['Dress'],
+  all: ['Hat', 'Upper-clothes', 'Skirt', 'Pants', 'Dress', 'Belt', 'Left-shoe', 'Right-shoe', 'Scarf']
+};
+const STEPS = ['setup', 'photo', 'capture', 'category', 'processing', 'live'];
+let stepHistory = ['setup'];
+function $(id) { return document.getElementById(id); }
+function showStep(name) {
+  STEPS.forEach(s => $(`step-${s}`).classList.add('hidden'));
+  $(`step-${name}`).classList.remove('hidden');
+  $('backBtn').classList.toggle('hidden', name === 'setup' || name === 'processing');
+  if (stepHistory[stepHistory.length - 1] !== name) stepHistory.push(name);
+}
+function goBack() {
+  stopAllStreams();
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+  stepHistory.pop();
+  const prev = stepHistory[stepHistory.length - 1] || 'setup';
+  STEPS.forEach(s => $(`step-${s}`).classList.add('hidden'));
+  $(`step-${prev}`).classList.remove('hidden');
+  $('backBtn').classList.toggle('hidden', prev === 'setup');
+}
+function stopAllStreams() {
+  if (state.currentStream) { state.currentStream.getTracks().forEach(t => t.stop()); state.currentStream = null; }
+}
+function showError(elId, msg) { const el = $(elId); el.innerHTML = msg; el.classList.remove('hidden'); }
+
+// 토큰 보기/숨기기
+$('toggleShowBtn').onclick = () => {
+  const inp = $('tokenInput');
+  if (inp.type === 'password') { inp.type = 'text'; $('toggleShowBtn').textContent = '숨김'; }
+  else { inp.type = 'password'; $('toggleShowBtn').textContent = '보기'; }
+};
+
+// v1.1: 토큰 검증 제거, 형식만 체크
+$('saveTokenBtn').onclick = () => {
+  const token = $('tokenInput').value.trim();
+  $('setupError').classList.add('hidden');
+  if (!token.startsWith('hf_')) {
+    showError('setupError', '토큰은 "hf_"로 시작해야 합니다. 전체 토큰을 다시 복사해 붙여넣어 주세요.');
+    return;
+  }
+  if (token.length < 30) {
+    showError('setupError', '토큰이 잘려있는 것 같습니다. "보기" 버튼으로 확인 후 전체를 붙여넣어 주세요.');
+    return;
+  }
+  state.token = token;
+  showStep('photo');
+};
+
+$('uploadOption').onclick = () => $('fileInput').click();
+$('fileInput').onchange = (e) => { const file = e.target.files[0]; if (!file) return; state.photoBlob = file; loadPhotoForCategory(file); };
+$('captureOption').onclick = async () => { showStep('capture'); await startCaptureCamera(); };
+
+async function startCaptureCamera() {
+  stopAllStreams();
+  try {
+    state.currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facingMode } });
+    $('captureVideo').srcObject = state.currentStream;
+  } catch (e) {
+    alert('카메라 접근 실패: ' + e.message + '\n\nHTTPS 환경에서만 카메라가 동작합니다.');
+    goBack();
+  }
+}
+$('flipCameraBtn').onclick = async () => {
+  state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+  await startCaptureCamera();
+};
+$('shutterBtn').onclick = () => {
+  const video = $('captureVideo');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob((blob) => {
+    state.photoBlob = blob; stopAllStreams(); loadPhotoForCategory(blob);
+  }, 'image/jpeg', 0.92);
+};
+
+function loadPhotoForCategory(blob) {
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    state.photoImage = img;
+    $('previewPhoto').src = url;
+    state.selectedCategory = null;
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    $('extractBtn').disabled = true;
+    showStep('category');
+  };
+  img.src = url;
+}
+document.querySelectorAll('.category-card').forEach(card => {
+  card.onclick = () => {
+    document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.selectedCategory = card.dataset.cat;
+    $('extractBtn').disabled = false;
+  };
+});
+
+$('extractBtn').onclick = async () => {
+  showStep('processing');
+  $('processingText').textContent = '의상 영역 분석 중...';
+  try {
+    const mask = await extractMask(state.photoBlob, state.selectedCategory);
+    state.maskImage = mask;
+    await startLiveMode();
+  } catch (e) {
+    alert('추출 실패: ' + e.message);
+    goBack();
+  }
+};
+
+async function extractMask(imageBlob, category) {
+  const targetLabels = CATEGORY_MAP[category];
+  const arrayBuffer = await imageBlob.arrayBuffer();
+  let response;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    response = await fetch(
+      'https://api-inference.huggingface.co/models/mattmdjaga/segformer_b2_clothes',
+      { method: 'POST', headers: { 'Authorization': `Bearer ${state.token}`, 'Content-Type': 'application/octet-stream' }, body: arrayBuffer }
+    );
+    if (response.ok) break;
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('토큰 인증 실패. 시작 화면으로 돌아가 토큰을 다시 입력해주세요. (Read 권한 있는 새 토큰 발급 권장)');
+    }
+    if (response.status === 503) {
+      $('processingText').textContent = `모델 로딩 중... (재시도 ${attempt + 1}/4)`;
+      await new Promise(r => setTimeout(r, 8000));
+      continue;
+    }
+    const errText = await response.text();
+    throw new Error(`API 오류 (${response.status}): ${errText.slice(0, 120)}`);
+  }
+  if (!response.ok) throw new Error('모델 로딩 시간 초과. 잠시 후 다시 시도해주세요.');
+
+  const segments = await response.json();
+  const relevant = segments.filter(s => targetLabels.includes(s.label));
+  if (relevant.length === 0) throw new Error('선택한 영역의 의상이 사진에서 감지되지 않았습니다.');
+
+  const photo = state.photoImage;
+  const mergedCanvas = document.createElement('canvas');
+  mergedCanvas.width = photo.naturalWidth; mergedCanvas.height = photo.naturalHeight;
+  const mergedCtx = mergedCanvas.getContext('2d');
+  mergedCtx.fillStyle = 'black';
+  mergedCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+  mergedCtx.globalCompositeOperation = 'lighter';
+  for (const seg of relevant) {
+    const maskImg = await loadBase64Image('data:image/png;base64,' + seg.mask);
+    mergedCtx.drawImage(maskImg, 0, 0, mergedCanvas.width, mergedCanvas.height);
+  }
+  return await canvasToImage(mergedCanvas);
+}
+function loadBase64Image(dataUrl) {
+  return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = dataUrl; });
+}
+function canvasToImage(canvas) {
+  return new Promise((resolve) => { canvas.toBlob((blob) => { const img = new Image(); img.onload = () => resolve(img); img.src = URL.createObjectURL(blob); }, 'image/png'); });
+}
+
+async function startLiveMode() {
+  showStep('live');
+  state.liveVideo = $('liveVideo'); state.liveCanvas = $('liveCanvas');
+  state.liveCtx = state.liveCanvas.getContext('2d');
+  state.liveCanvas.width = state.photoImage.naturalWidth;
+  state.liveCanvas.height = state.photoImage.naturalHeight;
+  state.tempCanvas = document.createElement('canvas');
+  state.tempCanvas.width = state.liveCanvas.width;
+  state.tempCanvas.height = state.liveCanvas.height;
+  state.tempCtx = state.tempCanvas.getContext('2d');
+  state.facingMode = 'environment';
+  await startLiveCamera();
+  renderLive();
+}
+async function startLiveCamera() {
+  stopAllStreams();
+  try {
+    state.currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facingMode } });
+    state.liveVideo.srcObject = state.currentStream;
+    await new Promise(r => state.liveVideo.onloadedmetadata = r);
+  } catch (e) { alert('카메라 접근 실패: ' + e.message); }
+}
+$('liveFlipBtn').onclick = async () => { state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment'; await startLiveCamera(); };
+
+function renderLive() {
+  const ctx = state.liveCtx; const canvas = state.liveCanvas; const video = state.liveVideo;
+  const tctx = state.tempCtx; const temp = state.tempCanvas;
+  if (video.readyState >= 2) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(state.photoImage, 0, 0, canvas.width, canvas.height);
+    tctx.globalCompositeOperation = 'source-over';
+    tctx.clearRect(0, 0, temp.width, temp.height);
+    const vw = video.videoWidth, vh = video.videoHeight, cw = canvas.width, ch = canvas.height;
+    const scale = Math.max(cw / vw, ch / vh);
+    const sw = vw * scale, sh = vh * scale, sx = (cw - sw) / 2, sy = (ch - sh) / 2;
+    tctx.drawImage(video, sx, sy, sw, sh);
+    tctx.globalCompositeOperation = 'destination-in';
+    tctx.drawImage(state.maskImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(temp, 0, 0);
+  }
+  state.rafId = requestAnimationFrame(renderLive);
+}
+$('captureLiveBtn').onclick = () => {
+  state.liveCanvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `attraction-${Date.now()}.png`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, 'image/png');
+};
+$('backBtn').onclick = goBack;
+showStep('setup');
+</script>
+</body>
+</html>
