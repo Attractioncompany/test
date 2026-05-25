@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>매력 시뮬레이터 v2</title>
+<title>매력 시뮬레이터 v2.1</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Pretendard', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; overflow-x: hidden; }
@@ -64,7 +64,7 @@
 <div class="app">
   <div class="header">
     <button class="back-btn hidden" id="backBtn">← 뒤로</button>
-    <h1>매력 시뮬레이터 v2</h1>
+    <h1>매력 시뮬레이터 v2.1</h1>
     <div style="width: 60px;"></div>
   </div>
 
@@ -321,15 +321,13 @@ async function extractMask(imageElement, category) {
     throw new Error(`선택한 영역의 의상이 감지되지 않았습니다.\n\n감지된 항목: ${detected}`);
   }
 
-  // 마스크 합성용 캔버스
+  // 마스크 합성용 캔버스 (투명 배경, 알파 채널 기반)
   const w = imageElement.naturalWidth;
   const h = imageElement.naturalHeight;
   const merged = document.createElement('canvas');
   merged.width = w; merged.height = h;
   const ctx = merged.getContext('2d');
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, w, h);
-  ctx.globalCompositeOperation = 'lighter';
+  ctx.clearRect(0, 0, w, h);
 
   for (const seg of relevant) {
     const maskCanvas = rawImageMaskToCanvas(seg.mask);
@@ -345,13 +343,13 @@ function rawImageMaskToCanvas(rawImage) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.createImageData(rawImage.width, rawImage.height);
   const data = rawImage.data;
-  // mask는 1채널 (흑백). 값이 있는 픽셀 = 선택된 영역
+  // 마스크 값을 알파 채널에 넣기 (destination-in이 알파 기준으로 작동하므로)
   for (let i = 0; i < data.length; i++) {
     const v = data[i];
-    imageData.data[i * 4] = v;
-    imageData.data[i * 4 + 1] = v;
-    imageData.data[i * 4 + 2] = v;
-    imageData.data[i * 4 + 3] = 255;
+    imageData.data[i * 4] = 255;
+    imageData.data[i * 4 + 1] = 255;
+    imageData.data[i * 4 + 2] = 255;
+    imageData.data[i * 4 + 3] = v > 0 ? 255 : 0;
   }
   ctx.putImageData(imageData, 0, 0);
   return canvas;
